@@ -64,6 +64,8 @@ RUN apk add --no-cache \
 
 COPY --from=build /usr/local/nginx/sbin/nginx /usr/local/nginx/sbin/nginx
 COPY --from=build /usr/local/nginx/html       /usr/local/nginx/html
+# mime.types and other default conf files
+COPY --from=build /etc/nginx/                 /etc/nginx/
 COPY nginx.conf /etc/nginx/nginx.conf
 
 # Writable dirs the container needs at runtime (mounted as emptyDir in k8s)
