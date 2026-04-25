@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "nginx-rtmp-server.fullname" . }}
+  labels:
+    {{- include "nginx-rtmp-server.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "nginx-rtmp-server.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: rtmp
+      port: {{ .Values.service.rtmpPort }}
+      targetPort: rtmp
+      protocol: TCP
+    - name: http
+      port: {{ .Values.service.httpPort }}
+      targetPort: http
+      protocol: TCP

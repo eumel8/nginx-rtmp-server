@@ -1,0 +1,66 @@
+image:
+  repository: ghcr.io/eumel8/nginx-rtmp-server
+  tag: latest
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+replicaCount: 1
+
+service:
+  rtmpPort: 1935
+  httpPort: 8080
+
+ingress:
+  enabled: true
+  className: nginx
+  host: rtmp.e.mcsps.de
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  tls:
+    enabled: true
+    secretName: rtmp-e-mcsps-de-tls
+
+# RTMP TCP exposure via the ingress-nginx tcp-services ConfigMap.
+# The chart only documents this; the ConfigMap itself is cluster-scoped
+# and managed outside the chart (see README).
+rtmp:
+  externalPort: 1935
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: "1"
+    memory: 512Mi
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 10001
+  fsGroup: 10001
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 10001
+  privileged: false
+  capabilities:
+    drop:
+      - ALL
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# Persistence for HLS/DASH segments. emptyDir by default.
+hlsVolume:
+  sizeLimit: 512Mi
+dashVolume:
+  sizeLimit: 512Mi
