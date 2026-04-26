@@ -67,6 +67,7 @@ COPY --from=build /usr/local/nginx/html       /usr/local/nginx/html
 # mime.types and other default conf files
 COPY --from=build /etc/nginx/                 /etc/nginx/
 COPY nginx.conf /etc/nginx/nginx.conf
+COPY watch.html /usr/local/nginx/html/watch.html
 
 # Writable dirs the container needs at runtime (mounted as emptyDir in k8s)
 RUN mkdir -p /var/log/nginx /var/cache/nginx /run/nginx /var/hls /var/dash && \

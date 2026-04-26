@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>nginx-rtmp livestream</title>
+<style>
+  :root { color-scheme: dark; }
+  html,body { margin:0; padding:0; background:#0e0e10; color:#efeff1;
+              font-family: system-ui, sans-serif; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 1.5rem; }
+  h1 { font-weight: 500; font-size: 1.2rem; margin: 0 0 1rem; }
+  video { width:100%; aspect-ratio: 16/9; background:#000; border-radius:8px; }
+  .row { display:flex; gap:.5rem; margin-top:1rem; align-items:center; }
+  input { flex:1; padding:.5rem .75rem; border-radius:6px; border:1px solid #333;
+          background:#1f1f23; color:#efeff1; font-family: monospace; }
+  button { padding:.5rem 1rem; border-radius:6px; border:0;
+           background:#9147ff; color:white; cursor:pointer; }
+  button:hover { background:#772ce8; }
+  small { color:#adadb8; }
+  a { color:#9147ff; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Livestream</h1>
+  <video id="video" controls autoplay muted playsinline></video>
+
+  <div class="row">
+    <input id="src" value="" spellcheck="false">
+    <button id="load">Load</button>
+  </div>
+  <p><small>
+    Publish via RTMP: <code>rtmp://rtmp.e.mcsps.de/live/&lt;stream-key&gt;</code>
+    &middot; <a href="/stat">stats</a>
+  </small></p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
+<script>
+(function(){
+  const video = document.getElementById('video');
+  const input = document.getElementById('src');
+  const btn   = document.getElementById('load');
+
+  // Take ?key= or ?src= from query, default to "test"
+  const params = new URLSearchParams(location.search);
+  const key    = params.get('key') || 'test';
+  const src    = params.get('src') ||
+                 location.origin + '/hls/' + key + '.m3u8';
+  input.value = src;
+
+  let hls;
+  function load(url){
+    if (hls) { hls.destroy(); hls = null; }
+    if (Hls.isSupported()) {
+      hls = new Hls({ lowLatencyMode: true, liveSyncDuration: 4 });
+      hls.loadSource(url);
+      hls.attachMedia(video);
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = url;        // Safari / iOS
+    } else {
+      alert('HLS is not supported in this browser');
+    }
+  }
+
+  btn.addEventListener('click', () => load(input.value.trim()));
+  load(src);
+})();
+</script>
+</body>
+</html>
