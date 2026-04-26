@@ -59,3 +59,18 @@ kubectl -n ingress-nginx patch svc ingress-nginx-controller --type=json -p='[
 * HLS:     `https://rtmp.e.mcsps.de/hls/<stream-key>.m3u8`
 * DASH:    `https://rtmp.e.mcsps.de/dash/<stream-key>.mpd`
 * Stats:   `https://rtmp.e.mcsps.de/stat`
+
+## Recording
+
+```
+ffmpeg -i rtmp://rtmp.e.mcsps.de/live/<stream-key> -c copy -f segment \
+-segment_time 3600 \
+-strftime 1 \
+"/recordings/%Y-%m-%d_%H-%M-%S.mp4"
+```
+
+## RTSP2RTMP
+
+```
+ffmpeg -rtsp_transport tcp -i "rtsp://<user>:<pass>@192.168.0.137:10554/11" -c:v copy -an -f flv "rtmp://rtmp.e.mcsps.de/live/<stream-key>"
+```
